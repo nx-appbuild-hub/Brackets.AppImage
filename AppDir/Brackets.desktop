@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Brackets
+Type=Application
+Categories=Development;
+Exec=AppRun %U
+MimeType=text/html;
+Icon=icon
+Keywords=Text;Editor;Write;Web;Development;

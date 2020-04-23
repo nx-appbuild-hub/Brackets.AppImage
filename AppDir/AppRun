@@ -1,0 +1,13 @@
+#! /bin/bash
+set -e
+
+
+LD_LIBRARY_PATH="${APPDIR}/opt/application/Brackets:${APPDIR}/opt/application/Brackets/lib:$LD_LIBRARY_PATH"
+
+export LD_LIBRARY_PATH
+
+mkdir -p ~/.config/Brackets &&  echo '[position]' > ~/.config/Brackets/window.ini
+
+
+cd ${HOME}
+exec ${APPDIR}/opt/application/Brackets $@
