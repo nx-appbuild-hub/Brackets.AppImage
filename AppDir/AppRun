@@ -9,5 +9,5 @@ export LD_LIBRARY_PATH
 mkdir -p ~/.config/Brackets &&  echo '[position]' > ~/.config/Brackets/window.ini
 
 
-cd ${HOME}
-exec ${APPDIR}/opt/application/Brackets $@
+cd ${OWD}
+exec ${APPDIR}/opt/application/Brackets "$@"
