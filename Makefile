@@ -1,24 +1,42 @@
-SOURCE="https://github.com/adobe/brackets/releases/download/release-1.12/Brackets.Release.1.12.64-bit.deb"
-DESTINATION="build.deb"
-OUTPUT="Brackets.AppImage"
+# Copyright 2020 Alex Woroschilow (alex.woroschilow@gmail.com)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+PWD:=$(shell pwd)
 
 
-all:
-	echo "Building: $(OUTPUT)"
-	wget -O $(DESTINATION) -c $(SOURCE)
-	
-	dpkg -x $(DESTINATION) build
-	rm -rf AppDir/opt
-	
-	mkdir --parents AppDir/opt/application
-	cp -r build/opt/brackets/* AppDir/opt/application
+all: clean
 
-	chmod +x AppDir/AppRun
+	mkdir --parents $(PWD)/build
+	mkdir --parents $(PWD)/build/AppDir
+	mkdir --parents $(PWD)/build/AppDir/brackets
 
-	export ARCH=x86_64 && bin/appimagetool.AppImage AppDir $(OUTPUT)
+	wget --output-document=$(PWD)/build/build.deb https://github.com/adobe/brackets/releases/download/release-1.14.1/Brackets.Release.1.14.1.64-bit.deb
+	dpkg -x $(PWD)/build/build.deb $(PWD)/build
 
-	chmod +x $(OUTPUT)
+	wget --output-document=$(PWD)/build/build.rpm http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/gtk2-2.24.32-4.el8.x86_64.rpm
+	cd $(PWD)/build && rpm2cpio $(PWD)/build/build.rpm | cpio -idmv && cd ..
 
-	rm -f $(DESTINATION)
-	rm -rf AppDir/opt
-	rm -rf build
+	wget --output-document=$(PWD)/build/build.rpm http://mirror.centos.org/centos/8/AppStream/x86_64/os/Packages/GConf2-3.2.6-22.el8.x86_64.rpm
+	cd $(PWD)/build && rpm2cpio $(PWD)/build/build.rpm | cpio -idmv && cd ..
+
+
+	cp --force --recursive $(PWD)/build/usr/* $(PWD)/build/AppDir/
+	cp --force --recursive $(PWD)/build/opt/brackets/* $(PWD)/build/AppDir/brackets
+	cp --force --recursive $(PWD)/AppDir/* $(PWD)/build/AppDir
+
+	chmod +x $(PWD)/build/AppDir/AppRun
+	chmod +x $(PWD)/build/AppDir/*.desktop
+
+	export ARCH=x86_64 && $(PWD)/bin/appimagetool.AppImage $(PWD)/build/AppDir $(PWD)/Brackets.AppImage
+	chmod +x $(PWD)/Brackets.AppImage
+
+clean:
+	rm -rf $(PWD)/build
